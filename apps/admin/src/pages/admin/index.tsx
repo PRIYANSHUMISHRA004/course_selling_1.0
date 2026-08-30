@@ -114,26 +114,26 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
               <div className="space-y-1.5">
                 <h3 className="text-sm font-bold text-slate-900">
-                  Curriculum Editor
+                  Course Management
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Draft comprehensive lesson contents, set flexible pricing, and manage course statuses.
+                  Draft course descriptions, set prices, and publish directly to students.
                 </p>
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-sm font-bold text-slate-900">
-                  Secure console
+                  Secure Console
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Access is locked behind strict JWT credentials verification keeping user profiles confidential.
+                  Access is protected with JWT token authentication for total course ownership.
                 </p>
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-sm font-bold text-slate-900">
-                  Responsive workspace
+                  Easy Workflow
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Tailored specifically for administrative curation layout based on best-practice SaaS guidelines.
+                  A simple and streamlined admin panel to manage, edit, and delete courses.
                 </p>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function Home() {
     <>
       <Head>
         <title>Dashboard | Admin Portal</title>
-        <meta name="description" content="Manage your courses, view course catalog, and edit learning paths." />
+        <meta name="description" content="Manage your courses, view course catalog, and edit courses." />
       </Head>
 
       <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
@@ -165,7 +165,7 @@ export default function Home() {
                 Welcome back!
               </p>
               <p className="text-sm text-slate-500 mt-0.5">
-                Manage your courses, publish new content and grow your learning platform.
+                Manage your courses, publish new content and grow your platform.
               </p>
             </div>
             <button
@@ -212,7 +212,7 @@ export default function Home() {
                   Create Course
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Draft a new course curriculum with customizable lessons, pricing and statuses.
+                  Draft a new course with title, description, pricing and cover image.
                 </p>
               </div>
               <div>

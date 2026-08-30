@@ -17,20 +17,19 @@ export default async function handler(
 
     const adminData = verifyToken(req, process.env.ADMIN_SECRET!);
 
-    const { id ,mine} = req.query;
- 
+    const admin = await Admin.findOne({
+      username: adminData.username,
+    });
+
+    if (!admin) {
+      return res.status(404).json({
+        message: "Admin not found",
+      });
+    }
+
+    const { id, mine } = req.query;
 
     if (mine === "true") {
-      const admin = await Admin.findOne({
-        username: adminData.username,
-      });
-
-      if (!admin) {
-        return res.status(404).json({
-          message: "Admin not found",
-        });
-      }
-
       const courses = await Course.find({
         adminId: admin._id,
       });
@@ -41,7 +40,10 @@ export default async function handler(
     }
 
     if (id) {
-      const course = await Course.findById(id);
+      const course = await Course.findOne({
+        _id: id,
+        adminId: admin._id,
+      });
 
       if (!course) {
         return res.status(404).json({
@@ -54,7 +56,9 @@ export default async function handler(
       });
     }
 
-    const courses = await Course.find({});
+    const courses = await Course.find({
+      adminId: admin._id,
+    });
 
     return res.status(200).json({
       courses,

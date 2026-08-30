@@ -62,7 +62,7 @@ export default function SignupPage() {
                 <RocketIcon className="w-5 h-5 text-blue-400" />
               </div>
               <span className="text-sm font-semibold text-slate-200">
-                Build dynamic lessons with descriptions
+                Create and manage your courses with rich content
               </span>
             </div>
 

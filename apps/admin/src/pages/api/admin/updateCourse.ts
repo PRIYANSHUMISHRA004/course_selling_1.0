@@ -36,14 +36,6 @@ export default async function handler(
       imageLink,
       price,
       published,
-      category,
-      level,
-      language,
-      duration,
-      thumbnail,
-      tags,
-      totalLessons,
-      lessons,
     } = req.body;
 
     if (!courseId) {
@@ -59,19 +51,6 @@ export default async function handler(
     if (imageLink !== undefined) updateFields.imageLink = imageLink;
     if (price !== undefined) updateFields.price = price;
     if (published !== undefined) updateFields.published = published;
-    if (category !== undefined) updateFields.category = category;
-    if (level !== undefined) updateFields.level = level;
-    if (language !== undefined) updateFields.language = language;
-    if (duration !== undefined) updateFields.duration = duration;
-    if (thumbnail !== undefined) updateFields.thumbnail = thumbnail;
-    if (tags !== undefined) updateFields.tags = tags;
-    if (lessons !== undefined) {
-      updateFields.lessons = lessons;
-      if (totalLessons === undefined) {
-        updateFields.totalLessons = lessons.length;
-      }
-    }
-    if (totalLessons !== undefined) updateFields.totalLessons = totalLessons;
 
     const course = await Course.findOneAndUpdate(
       {

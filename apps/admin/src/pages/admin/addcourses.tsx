@@ -4,9 +4,8 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Head from "next/head";
-import { CATEGORIES, LEVELS, LANGUAGES, type CourseFormat } from "store";
+import type { CourseFormat } from "store";
 
-/** Section label above each field */
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">
@@ -22,11 +21,6 @@ export default function AddCourse() {
     price: 0,
     imageLink: "",
     published: false,
-    category: "",
-    level: "" as "" | "Beginner" | "Intermediate" | "Advanced",
-    language: "",
-    duration: "",
-    tagsRaw: "", // comma-separated UI value
   });
 
   const router = useRouter();
@@ -39,24 +33,17 @@ export default function AddCourse() {
       return;
     }
 
-    // Convert tagsRaw → string[] and derive thumbnail from imageLink
-    const tags = course.tagsRaw
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    if (!course.title.trim()) {
+      alert("Please enter a course title.");
+      return;
+    }
 
     const payload = {
       title: course.title,
       description: course.description,
       price: course.price,
       imageLink: course.imageLink,
-      thumbnail: course.imageLink, 
       published: course.published,
-      ...(course.category && { category: course.category }),
-      ...(course.level && { level: course.level }),
-      ...(course.language && { language: course.language }),
-      ...(course.duration && { duration: course.duration }),
-      ...(tags.length > 0 && { tags }),
     };
 
     setLoading(true);
@@ -68,19 +55,6 @@ export default function AddCourse() {
       const msg = res.data?.message || "Course created successfully";
       alert(msg);
       router.push("/admin/courses");
-
-      setCourse({
-        title: "",
-        description: "",
-        price: 0,
-        imageLink: "",
-        published: false,
-        category: "",
-        level: "",
-        language: "",
-        duration: "",
-        tagsRaw: "",
-      });
     } catch (err: any) {
       console.error("Add course error:", err);
       const serverMsg =
@@ -93,7 +67,6 @@ export default function AddCourse() {
     }
   };
 
-  // Preview card uses the same shape Coursecard expects.
   const previewCourse: CourseFormat[] = [
     {
       _id: "preview",
@@ -102,15 +75,6 @@ export default function AddCourse() {
       price: course.price,
       imageLink: course.imageLink,
       published: course.published,
-      category: course.category || undefined,
-      level: course.level || undefined,
-      language: course.language || undefined,
-      duration: course.duration || undefined,
-      thumbnail: course.imageLink || undefined,
-      tags: course.tagsRaw
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
     },
   ];
 
@@ -122,7 +86,6 @@ export default function AddCourse() {
 
       <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
           {/* ── Page Header ── */}
           <div className="flex items-center gap-3.5 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -140,52 +103,49 @@ export default function AddCourse() {
 
           {/* ── Two-column layout ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
             {/* ════════════════════════════════
                 LEFT COLUMN — Form (7 cols)
             ════════════════════════════════ */}
             <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-              {/* Form header */}
               <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-4">
                 <h2 className="text-lg font-bold text-slate-900">
                   Course Details
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  All fields with * are required.
+                  Course description will be the protected content accessible to students after purchase.
                 </p>
               </div>
 
               <hr className="border-slate-200" />
 
               <div className="p-6 sm:p-8 space-y-6">
-
                 {/* ── Course Title ── */}
                 <div>
                   <FieldLabel>Course Title *</FieldLabel>
                   <input
                     type="text"
-                    placeholder="e.g. Complete React Developer Bootcamp"
+                    placeholder="e.g. Complete React Developer Course"
                     value={course.title}
                     onChange={(e) => setCourse({ ...course, title: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                   />
                   <span className="text-xs text-slate-400 mt-1 block">
-                    Give your course a clear, searchable title
+                    Give your course a clear title
                   </span>
                 </div>
 
-                {/* ── Description ── */}
+                {/* ── Description (Protected Course Content) ── */}
                 <div>
-                  <FieldLabel>Description</FieldLabel>
+                  <FieldLabel>Course Content / Description</FieldLabel>
                   <textarea
-                    rows={4}
-                    placeholder="Describe what students will learn, prerequisites, and outcomes..."
+                    rows={6}
+                    placeholder="Write the full course content and material here. Only paying students will have access to read this..."
                     value={course.description}
                     onChange={(e) => setCourse({ ...course, description: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                   />
                   <span className="text-xs text-slate-400 mt-1 block">
-                    A compelling description improves enrollment
+                    This description acts as the complete purchased course content.
                   </span>
                 </div>
 
@@ -203,7 +163,7 @@ export default function AddCourse() {
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                   />
                   <span className="text-xs text-slate-400 mt-1 block">
-                    Set to 0 for a free course
+                    Set course price in INR (₹)
                   </span>
                 </div>
 
@@ -212,116 +172,14 @@ export default function AddCourse() {
                   <FieldLabel>Cover Image URL</FieldLabel>
                   <input
                     type="text"
-                    placeholder="https://example.com/course-thumbnail.jpg"
+                    placeholder="https://example.com/image.jpg"
                     value={course.imageLink}
                     onChange={(e) => setCourse({ ...course, imageLink: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
                   />
                   <span className="text-xs text-slate-400 mt-1 block">
-                    Paste a direct image URL — preview updates on the right. Also used as thumbnail.
+                    Direct link to the course thumbnail image
                   </span>
-                </div>
-
-                <hr className="border-slate-200" />
-
-                {/* ── Category / Level / Language row ── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* Category */}
-                  <div>
-                    <FieldLabel>Category</FieldLabel>
-                    <select
-                      value={course.category}
-                      onChange={(e) => setCourse({ ...course, category: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                    >
-                      <option value="">None</option>
-                      {CATEGORIES.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Level */}
-                  <div>
-                    <FieldLabel>Level</FieldLabel>
-                    <select
-                      value={course.level}
-                      onChange={(e) =>
-                        setCourse({
-                          ...course,
-                          level: e.target.value as typeof course.level,
-                        })
-                      }
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                    >
-                      <option value="">None</option>
-                      {LEVELS.map((l) => (
-                        <option key={l} value={l}>{l}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Language */}
-                  <div>
-                    <FieldLabel>Language</FieldLabel>
-                    <select
-                      value={course.language}
-                      onChange={(e) => setCourse({ ...course, language: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                    >
-                      <option value="">None</option>
-                      {LANGUAGES.map((lang) => (
-                        <option key={lang} value={lang}>{lang}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* ── Duration ── */}
-                <div>
-                  <FieldLabel>Duration</FieldLabel>
-                  <input
-                    type="text"
-                    placeholder="e.g. 12 hours, 6 weeks"
-                    value={course.duration}
-                    onChange={(e) => setCourse({ ...course, duration: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                  />
-                  <span className="text-xs text-slate-400 mt-1 block">
-                    Estimated time to complete the course
-                  </span>
-                </div>
-
-                {/* ── Tags ── */}
-                <div>
-                  <FieldLabel>Tags</FieldLabel>
-                  <input
-                    type="text"
-                    placeholder="e.g. react, javascript, web development"
-                    value={course.tagsRaw}
-                    onChange={(e) => setCourse({ ...course, tagsRaw: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                  />
-                  <span className="text-xs text-slate-400 mt-1 block">
-                    Comma-separated keywords to improve discoverability
-                  </span>
-                  {/* Live tag chips preview */}
-                  {course.tagsRaw.trim() && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {course.tagsRaw
-                        .split(",")
-                        .map((t) => t.trim())
-                        .filter(Boolean)
-                        .map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs font-semibold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                    </div>
-                  )}
                 </div>
 
                 <hr className="border-slate-200" />
@@ -333,7 +191,7 @@ export default function AddCourse() {
                       Publish Course
                     </span>
                     <span className="text-xs text-slate-500">
-                      Students can enroll once the course is published
+                      Students can purchase once the course is published
                     </span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -357,7 +215,6 @@ export default function AddCourse() {
                     </span>
                   </label>
                 </div>
-
               </div>
 
               {/* ── Footer Actions ── */}
@@ -379,7 +236,6 @@ export default function AddCourse() {
                   {loading ? "Creating..." : "Create Course"}
                 </button>
               </div>
-
             </div>
 
             {/* ════════════════════════════════
@@ -395,11 +251,10 @@ export default function AddCourse() {
                 onClick={() => {}}
               />
             </div>
-
           </div>
-
         </div>
       </div>
     </>
   );
 }
+

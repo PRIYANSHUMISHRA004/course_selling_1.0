@@ -27,15 +27,14 @@ export default async function handler(
       });
     }
 
-    const courseData = { ...req.body };
-
-    // thumbnail falls back to imageLink when not explicitly supplied
-    if (!courseData.thumbnail && courseData.imageLink) {
-      courseData.thumbnail = courseData.imageLink;
-    }
+    const { title, description, price, imageLink, published } = req.body;
 
     const course = new Course({
-      ...courseData,
+      title,
+      description,
+      price: price ?? 0,
+      imageLink: imageLink ?? "",
+      published: published ?? false,
       adminId: admin._id,
     });
 
