@@ -9,9 +9,7 @@ A simplified, full-stack **Course Selling Platform** built with Next.js, Tailwin
 ```
 next_courseapp/
 ├── apps/
-│   ├── admin/          # Next.js app (Admin & User portal pages + API routes)
-│   ├── web/            # Public web app
-│   └── docs/           # Documentation site
+│   └── admin/          # Next.js app (Admin & User portals + API routes)
 ├── packages/
 │   ├── db/             # Mongoose models (User, Admin, Course) & DB connection
 │   ├── store/          # Recoil global state & CourseFormat types
