@@ -65,7 +65,7 @@ export default function MyLearningPage() {
 
   useEffect(() => {
     async function fetchMyCourses() {
-      const token = Cookies.get("token");
+      const token = Cookies.get("userToken");
       if (!token) {
         router.push("/user/login");
         return;

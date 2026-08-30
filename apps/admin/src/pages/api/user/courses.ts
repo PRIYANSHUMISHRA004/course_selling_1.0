@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Course, User, connectDB } from "db";
 import { verifyToken } from "auth";
+import mongoose from "mongoose";
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,17 +19,21 @@ export default async function handler(
     const { id } = req.query;
 
     if (id) {
+      if (typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid course ID" });
+      }
+
       // Check if user is authenticated and has purchased this course
       let isPurchased = false;
       if (req.headers.authorization) {
         try {
           const userData = verifyToken(req, process.env.USER_SECRET!);
           const dbUser = await User.findOne({ username: userData.username });
-          if (dbUser && dbUser.courses.some((cId: any) => cId.toString() === id.toString())) {
+          if (dbUser && dbUser.courses.some((cId: any) => cId.toString() === id)) {
             isPurchased = true;
           }
         } catch {
-          // Token invalid or expired — treat as public guest
+          // Invalid or expired token — treat as public guest
           isPurchased = false;
         }
       }
@@ -66,9 +71,10 @@ export default async function handler(
     return res.status(200).json({
       courses,
     });
-  } catch {
+  } catch (err) {
+    console.error("User courses API error:", err);
     return res.status(500).json({
-      message: "Internal Server Error",
+      message: "Internal server error",
     });
   }
 }

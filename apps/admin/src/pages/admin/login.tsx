@@ -20,7 +20,7 @@ export default function LoginPage() {
           isLoading: false,
         });
 
-        Cookies.set("token", token, {
+        Cookies.set("adminToken", token, {
           expires: 1,
         });
 

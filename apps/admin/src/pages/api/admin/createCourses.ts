@@ -15,7 +15,12 @@ export default async function handler(
   try {
     await connectDB();
 
-    const adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    let adminData;
+    try {
+      adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    } catch {
+      return res.status(401).json({ message: "Unauthorized: Invalid or missing admin token" });
+    }
 
     const admin = await Admin.findOne({
       username: adminData.username,
@@ -29,28 +34,34 @@ export default async function handler(
 
     const { title, description, price, imageLink, published } = req.body;
 
+    if (!title || typeof title !== "string" || !title.trim()) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+
+    const numericPrice = typeof price === "number" ? price : Number(price);
+    if (isNaN(numericPrice) || numericPrice < 0) {
+      return res.status(400).json({ message: "Price must be a valid non-negative number" });
+    }
+
     const course = new Course({
-      title,
-      description,
-      price: price ?? 0,
-      imageLink: imageLink ?? "",
-      published: published ?? false,
+      title: title.trim(),
+      description: typeof description === "string" ? description.trim() : "",
+      price: numericPrice,
+      imageLink: typeof imageLink === "string" ? imageLink.trim() : "",
+      published: Boolean(published),
       adminId: admin._id,
     });
 
     await course.save();
 
-    return res.status(200).json({
-      message: "Course created",
+    return res.status(201).json({
+      message: "Course created successfully",
       course,
     });
   } catch (err) {
-    console.error(err);
-    const error = err as { statusCode?: number; message?: string };
-    const status = error.statusCode || 500;
-    const message = error.message || "Server error";
-    return res.status(status).json({
-      message,
+    console.error("createCourses API Error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
 }

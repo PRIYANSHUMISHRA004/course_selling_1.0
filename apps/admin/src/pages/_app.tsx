@@ -6,7 +6,6 @@ import { Appbar } from "ui";
 import InitUser from "./init";
 import InitCourses from "./initCourses";
 import { useRouter } from "next/router";
-import { adminState, userState } from "store";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -21,12 +20,7 @@ export default function App({ Component, pageProps }: AppProps) {
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="beforeInteractive"
       />
-      {role && (
-        <InitUser
-          apiUrl={`/api/${role}/me`}
-          role={role === "admin" ? adminState : userState}
-        />
-      )}
+      {role && <InitUser role={role} />}
 
       {isUserRoute && <InitCourses />}
       {role && <Appbar role={role} />}

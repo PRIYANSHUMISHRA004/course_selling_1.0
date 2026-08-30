@@ -2,30 +2,30 @@ import { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { purchasedCoursesState } from "store";
+import { adminState, userState, purchasedCoursesState } from "store";
 
 interface InitUserProps {
-  apiUrl: string;
-  role: any;
+  role: "admin" | "user";
 }
 
-export default function InitUser({ apiUrl, role }: InitUserProps) {
-  const setUser = useSetRecoilState(role);
+export default function InitUser({ role }: InitUserProps) {
+  const setAdmin = useSetRecoilState(adminState);
+  const setUser = useSetRecoilState(userState);
   const setPurchased = useSetRecoilState(purchasedCoursesState);
 
   useEffect(() => {
     async function init() {
-      const token = Cookies.get("token");
+      const isUser = role === "user";
+      const setRoleState = isUser ? setUser : setAdmin;
+      const cookieName = isUser ? "userToken" : "adminToken";
+      const apiUrl = isUser ? "/api/user/me" : "/api/admin/me";
+      const token = Cookies.get(cookieName);
 
       if (!token) {
-        setUser({
-          userName: null,
-          isLoading: false,
-        });
-        setPurchased({
-          courses: [],
-          isLoading: false,
-        });
+        setRoleState({ userName: null, isLoading: false });
+        if (isUser) {
+          setPurchased({ courses: [], isLoading: false });
+        }
         return;
       }
 
@@ -36,33 +36,35 @@ export default function InitUser({ apiUrl, role }: InitUserProps) {
           },
         });
 
-        setUser({
+        setRoleState({
           userName: res.data.name,
           isLoading: false,
         });
 
-        if (res.data.courses) {
+        if (isUser && res.data.courses) {
           setPurchased({
             courses: res.data.courses,
             isLoading: false,
           });
         }
       } catch {
-        Cookies.remove("token");
+        Cookies.remove(cookieName);
 
-        setUser({
+        setRoleState({
           userName: null,
           isLoading: false,
         });
-        setPurchased({
-          courses: [],
-          isLoading: false,
-        });
+        if (isUser) {
+          setPurchased({
+            courses: [],
+            isLoading: false,
+          });
+        }
       }
     }
 
     init();
-  }, [setUser, setPurchased, apiUrl, role]);
+  }, [role, setAdmin, setUser, setPurchased]);
 
   return null;
 }

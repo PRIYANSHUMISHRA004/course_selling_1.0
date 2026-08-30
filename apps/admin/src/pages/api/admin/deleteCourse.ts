@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Admin, Course, connectDB } from "db";
+import { Admin, Course, User, connectDB } from "db";
 import { verifyToken } from "auth";
+import mongoose from "mongoose";
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,7 +16,12 @@ export default async function handler(
   try {
     await connectDB();
 
-    const adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    let adminData;
+    try {
+      adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    } catch {
+      return res.status(401).json({ message: "Unauthorized: Invalid or missing admin token" });
+    }
 
     const admin = await Admin.findOne({
       username: adminData.username,
@@ -29,9 +35,9 @@ export default async function handler(
 
     const { courseId } = req.query;
 
-    if (!courseId) {
+    if (!courseId || typeof courseId !== "string" || !mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({
-        message: "Course ID is required",
+        message: "Valid course ID is required",
       });
     }
 
@@ -46,12 +52,19 @@ export default async function handler(
       });
     }
 
+    // Clean up dangling references in users' purchased course arrays
+    await User.updateMany(
+      { courses: courseId },
+      { $pull: { courses: courseId } }
+    );
+
     return res.status(200).json({
       message: "Course deleted successfully",
     });
   } catch (error) {
-    return res.status(401).json({
-      message: "Unauthorized",
+    console.error("deleteCourse API error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
 }

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Admin, connectDB } from "db";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,37 +13,52 @@ export default async function handler(
     });
   }
 
-  await connectDB();
+  try {
+    await connectDB();
 
-  const { username, password } = req.body;
+    const { username, password } = req.body;
 
-  const admin = await Admin.findOne({
-    username,
-    password,
-  });
+    if (!username || !password) {
+      return res.status(400).json({
+        message: "Username and password are required",
+      });
+    }
 
-  if (!admin) {
-    return res.status(401).json({
-      message: "Invalid username or password",
-      token: null,
+    const admin = await Admin.findOne({
+      username: username.trim(),
     });
+
+    if (!admin) {
+      return res.status(401).json({
+        message: "Invalid username or password",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid username or password",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        username: admin.username,
+      },
+      process.env.ADMIN_SECRET!,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    return res.status(200).json({
+      message: "Login successful",
+      name: admin.name,
+      token,
+    });
+  } catch (err) {
+    console.error("Admin signin error:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
-
-  const token = jwt.sign(
-    {
-      username: admin.username,
-    },
-    process.env.ADMIN_SECRET!,
-     {
-
-    expiresIn: "1d",
-
-  }
-  );
-console.log("Radhe radhe admin is",admin.name)
-  return res.status(200).json({
-    message: "Login successful",
-    name: admin.name,
-    token,
-  });
 }

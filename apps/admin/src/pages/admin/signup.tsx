@@ -22,7 +22,7 @@ export default function SignupPage() {
           isLoading: false,
         });
 
-        Cookies.set("token", token, {
+        Cookies.set("adminToken", token, {
           expires: 1,
         });
 

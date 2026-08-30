@@ -125,7 +125,7 @@ export default function UserHome() {
           isLoading: false,
         });
 
-        const token = Cookies.get("token");
+        const token = Cookies.get("userToken");
         if (token) {
           const userMeRes = await axios.get("/api/user/me", {
             headers: { Authorization: `Bearer ${token}` },

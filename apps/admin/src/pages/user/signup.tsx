@@ -21,7 +21,7 @@ export default function SignupPage() {
         isLoading: false,
       });
 
-      Cookies.set("token", token, {
+      Cookies.set("userToken", token, {
         expires: 1,
       });
 

@@ -24,7 +24,7 @@ export default function LoginPage() {
 
         console.log("Setting user to:", name);
 
-        Cookies.set("token", token, {
+        Cookies.set("userToken", token, {
           expires: 1,
         });
 

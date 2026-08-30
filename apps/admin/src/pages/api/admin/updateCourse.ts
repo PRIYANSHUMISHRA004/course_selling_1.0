@@ -1,8 +1,7 @@
-
-
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Admin, Course, connectDB } from "db";
 import { verifyToken } from "auth";
+import mongoose from "mongoose";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,7 +16,12 @@ export default async function handler(
   try {
     await connectDB();
 
-    const adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    let adminData;
+    try {
+      adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    } catch {
+      return res.status(401).json({ message: "Unauthorized: Invalid or missing admin token" });
+    }
 
     const admin = await Admin.findOne({
       username: adminData.username,
@@ -38,19 +42,36 @@ export default async function handler(
       published,
     } = req.body;
 
-    if (!courseId) {
+    if (!courseId || !mongoose.Types.ObjectId.isValid(courseId)) {
       return res.status(400).json({
-        message: "Course ID is required",
+        message: "Valid course ID is required",
       });
     }
 
     const updateFields: Record<string, any> = {};
 
-    if (title !== undefined) updateFields.title = title;
-    if (description !== undefined) updateFields.description = description;
-    if (imageLink !== undefined) updateFields.imageLink = imageLink;
-    if (price !== undefined) updateFields.price = price;
-    if (published !== undefined) updateFields.published = published;
+    if (title !== undefined) {
+      if (typeof title !== "string" || !title.trim()) {
+        return res.status(400).json({ message: "Title cannot be empty" });
+      }
+      updateFields.title = title.trim();
+    }
+    if (description !== undefined) {
+      updateFields.description = typeof description === "string" ? description.trim() : "";
+    }
+    if (imageLink !== undefined) {
+      updateFields.imageLink = typeof imageLink === "string" ? imageLink.trim() : "";
+    }
+    if (price !== undefined) {
+      const numericPrice = typeof price === "number" ? price : Number(price);
+      if (isNaN(numericPrice) || numericPrice < 0) {
+        return res.status(400).json({ message: "Price must be a valid non-negative number" });
+      }
+      updateFields.price = numericPrice;
+    }
+    if (published !== undefined) {
+      updateFields.published = Boolean(published);
+    }
 
     const course = await Course.findOneAndUpdate(
       {
@@ -77,8 +98,8 @@ export default async function handler(
     });
   } catch (error) {
     console.error("updateCourse API Error:", error);
-    return res.status(401).json({
-      message: "Unauthorized",
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
 }

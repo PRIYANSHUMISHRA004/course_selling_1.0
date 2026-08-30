@@ -27,7 +27,7 @@ export default function AddCourse() {
   const [loading, setLoading] = useState(false);
 
   const addCourse = async () => {
-    const token = Cookies.get("token");
+    const token = Cookies.get("adminToken");
     if (!token) {
       alert("Authentication token not found. Please log in again.");
       return;

@@ -13,7 +13,7 @@ export default function MyCoursesPage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const token = Cookies.get("token");
+        const token = Cookies.get("adminToken");
         if (!token) {
           router.push("/admin/login");
           return;

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Admin, Course, connectDB } from "db";
 import { verifyToken } from "auth";
+import mongoose from "mongoose";
 
 export default async function handler(
   req: NextApiRequest,
@@ -15,7 +16,12 @@ export default async function handler(
   try {
     await connectDB();
 
-    const adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    let adminData;
+    try {
+      adminData = verifyToken(req, process.env.ADMIN_SECRET!);
+    } catch {
+      return res.status(401).json({ message: "Unauthorized: Invalid or missing admin token" });
+    }
 
     const admin = await Admin.findOne({
       username: adminData.username,
@@ -23,28 +29,25 @@ export default async function handler(
 
     if (!admin) {
       return res.status(404).json({
-        message: "Admin not found",
+        message: "Admin account not found",
       });
     }
 
-    const { id, mine } = req.query;
+    const { id } = req.query;
 
-    if (mine === "true") {
-      const courses = await Course.find({
+    if (id) {
+      if (!mongoose.Types.ObjectId.isValid(id as string)) {
+        return res.status(400).json({ message: "Invalid course ID" });
+      }
+
+      const course = await Course.findOne({
+        _id: id,
         adminId: admin._id,
       });
 
-      return res.status(200).json({
-        courses,
-      });
-    }
-
-    if (id) {
-      const course = await Course.findById(id);
-
       if (!course) {
         return res.status(404).json({
-          message: "Course not found",
+          message: "Course not found or you do not have permission to access it",
         });
       }
 
@@ -53,14 +56,18 @@ export default async function handler(
       });
     }
 
-    const courses = await Course.find({});
+    // List all courses belonging to this admin
+    const courses = await Course.find({
+      adminId: admin._id,
+    });
 
     return res.status(200).json({
       courses,
     });
   } catch (err) {
-    return res.status(401).json({
-      message: "Unauthorized",
+    console.error("Admin courses API error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
     });
   }
 }

@@ -22,13 +22,12 @@ export function Appbar({ role }: AppbarProps) {
   const loginRoute = `/${role}/login`;
 
   const handleLogout = () => {
- 
     setState({
       userName: null,
       isLoading: false,
     });
    
-    Cookies.remove("token");
+    Cookies.remove(role === "admin" ? "adminToken" : "userToken");
    
     router.replace("/");
   };

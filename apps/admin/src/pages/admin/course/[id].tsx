@@ -25,7 +25,7 @@ export default function AdminCoursePage() {
     async function fetchCourse() {
       if (!id) return;
       try {
-        const token = Cookies.get("token");
+        const token = Cookies.get("adminToken");
         const res = await axios.get(`/api/admin/courses?id=${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -43,7 +43,7 @@ export default function AdminCoursePage() {
     if (!course) return;
     setLoading(true);
     try {
-      const token = Cookies.get("token");
+      const token = Cookies.get("adminToken");
 
       const res = await axios.put(
         "/api/admin/updateCourse",
@@ -75,7 +75,7 @@ export default function AdminCoursePage() {
   const deleteCourse = async () => {
     if (!window.confirm("Are you sure you want to delete this course? This action cannot be undone.")) return;
     try {
-      const token = Cookies.get("token");
+      const token = Cookies.get("adminToken");
       const res = await axios.delete(`/api/admin/deleteCourse?courseId=${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });

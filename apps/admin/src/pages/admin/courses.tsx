@@ -12,7 +12,7 @@ export default function CoursesPage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const token = Cookies.get("token");
+        const token = Cookies.get("adminToken");
         if (!token) return;
 
         const res = await axios.get("/api/admin/courses", {

@@ -33,7 +33,7 @@ export default function CoursesPage() {
 
   const courses = coursesData.courses;
 
-  function handleBuy(courseId: string) {
+  function openCourseDetails(courseId: string) {
     router.push(`/user/course/${courseId}`);
   }
 
@@ -56,7 +56,7 @@ export default function CoursesPage() {
   return (
     <>
       <Head>
-        <title>Courses | CourseApp</title>
+        <title>Courses | Coursecean</title>
       </Head>
 
       <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
@@ -68,7 +68,8 @@ export default function CoursesPage() {
               return (
                 <div
                   key={course._id ?? i}
-                  className="w-[300px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                  onClick={() => openCourseDetails(course._id)}
+                  className="w-[280px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col"
                 >
                   <img
                     src={course.imageLink || PLACEHOLDER_SRC}
@@ -79,42 +80,17 @@ export default function CoursesPage() {
                     }}
                   />
 
-                  <div className="p-4 pb-0 flex-1">
-                    <h3 className="text-lg font-bold text-slate-800 text-center line-clamp-2">
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <h3 className="text-base font-bold text-slate-800 line-clamp-2">
                       {course.title}
                     </h3>
 
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <span className="text-base font-semibold text-slate-900">
-                        ₹{course.price}
-                      </span>
-
-                      {isPurchased && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                          Purchased
+                    {isPurchased && (
+                      <div className="mt-3">
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                          Enrolled
                         </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Push button to bottom so cards align in the same row */}
-                  <div className="p-4 mt-auto">
-                    {isPurchased ? (
-                      <button
-                        type="button"
-                        onClick={() => router.push(`/user/course/${course._id}`)}
-                        className="w-full py-2 px-4 border border-emerald-600 hover:bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-xl transition-colors"
-                      >
-                        Continue Learning
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleBuy(course._id)}
-                        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
-                      >
-                        Buy Course
-                      </button>
+                      </div>
                     )}
                   </div>
                 </div>

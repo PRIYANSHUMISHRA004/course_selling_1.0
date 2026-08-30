@@ -25,7 +25,7 @@ export default function UserCoursePage() {
   // ── Purchase Course Action — Razorpay flow ──────────────────────────────────
   const buyCourse = async () => {
     try {
-      const token = Cookies.get("token");
+      const token = Cookies.get("userToken");
       if (!token) {
         router.push("/user/login");
         return;
@@ -120,7 +120,7 @@ export default function UserCoursePage() {
     async function fetchCourse() {
       if (!id) return;
       try {
-        const token = Cookies.get("token");
+        const token = Cookies.get("userToken");
         const headers: Record<string, string> = {};
         if (token) {
           headers.Authorization = `Bearer ${token}`;
