@@ -40,10 +40,7 @@ export default async function handler(
     }
 
     if (id) {
-      const course = await Course.findOne({
-        _id: id,
-        adminId: admin._id,
-      });
+      const course = await Course.findById(id);
 
       if (!course) {
         return res.status(404).json({
@@ -56,9 +53,7 @@ export default async function handler(
       });
     }
 
-    const courses = await Course.find({
-      adminId: admin._id,
-    });
+    const courses = await Course.find({});
 
     return res.status(200).json({
       courses,

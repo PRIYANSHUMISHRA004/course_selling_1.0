@@ -1,5 +1,7 @@
-"use client";
-import { useRecoilValue } from "recoil";
+import { useEffect } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { userState, coursesState, purchasedCoursesState } from "store";
 import { CourseFormat } from "store";
 import { useRouter } from "next/router";
@@ -111,8 +113,39 @@ function ContinueCard({
 export default function UserHome() {
   const router = useRouter();
   const user = useRecoilValue(userState);
-  const { courses: featuredCourses } = useRecoilValue(coursesState);
-  const { courses: myCourses } = useRecoilValue(purchasedCoursesState);
+  const [coursesData, setCoursesData] = useRecoilState(coursesState);
+  const [purchasedData, setPurchasedData] = useRecoilState(purchasedCoursesState);
+
+  useEffect(() => {
+    async function loadHomeData() {
+      try {
+        const res = await axios.get("/api/user/courses");
+        setCoursesData({
+          courses: res.data.courses || [],
+          isLoading: false,
+        });
+
+        const token = Cookies.get("token");
+        if (token) {
+          const userMeRes = await axios.get("/api/user/me", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (userMeRes.data?.courses) {
+            setPurchasedData({
+              courses: userMeRes.data.courses,
+              isLoading: false,
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load user home data:", err);
+      }
+    }
+    loadHomeData();
+  }, [setCoursesData, setPurchasedData]);
+
+  const featuredCourses = coursesData.courses;
+  const myCourses = purchasedData.courses;
 
   const displayName = user.userName
     ? user.userName.charAt(0).toUpperCase() + user.userName.slice(1)

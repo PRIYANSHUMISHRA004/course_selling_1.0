@@ -50,7 +50,7 @@ export default function CoursesPage() {
                 All Courses
               </h1>
               <p className="text-sm sm:text-base text-slate-500 mt-1">
-                Manage, edit, and update the catalog of courses created by you.
+                Browse and view all courses available across the platform.
               </p>
             </div>
             <button

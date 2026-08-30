@@ -1,8 +1,8 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import Cookies from "js-cookie";
-import { useRecoilValue } from "recoil";
-import { userState, coursesState, purchasedCoursesState } from "store";
+import axios from "axios";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { coursesState, purchasedCoursesState } from "store";
 import Head from "next/head";
 
 const PLACEHOLDER_SRC =
@@ -10,20 +10,39 @@ const PLACEHOLDER_SRC =
 
 export default function CoursesPage() {
   const router = useRouter();
-  const user = useRecoilValue(userState);
-
-
-  const { courses } = useRecoilValue(coursesState);
+  const [coursesData, setCoursesData] = useRecoilState(coursesState);
   const { courses: purchasedCourses } = useRecoilValue(purchasedCoursesState);
+  const [loading, setLoading] = useState(coursesData.isLoading);
 
-  // Derive the set of purchased IDs for O(1) lookup
-  const purchasedIds = useMemo(
-    () => new Set(purchasedCourses.map((c) => c._id)),
-    [purchasedCourses]
-  );
+  useEffect(() => {
+    async function fetchLatestCourses() {
+      try {
+        const res = await axios.get("/api/user/courses");
+        setCoursesData({
+          courses: res.data.courses || [],
+          isLoading: false,
+        });
+      } catch (err) {
+        console.error("Failed to fetch user courses:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLatestCourses();
+  }, [setCoursesData]);
+
+  const courses = coursesData.courses;
 
   function handleBuy(courseId: string) {
     router.push(`/user/course/${courseId}`);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh] text-slate-500 font-medium">
+        Loading courses...
+      </div>
+    );
   }
 
   if (courses.length === 0) {
@@ -37,14 +56,14 @@ export default function CoursesPage() {
   return (
     <>
       <Head>
-        <title>Courses | Coursecean</title>
+        <title>Courses | CourseApp</title>
       </Head>
 
       <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-6">
             {courses.map((course, i) => {
-              const isPurchased = purchasedIds.has(course._id);
+              const isPurchased = purchasedCourses.some((c) => c._id === course._id);
 
               return (
                 <div

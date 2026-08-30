@@ -1,9 +1,12 @@
 import { useRouter } from "next/router";
-import { useRecoilValue } from "recoil";
+import { useEffect, useState } from "react";
+import { useRecoilState } from "recoil";
 import { purchasedCoursesState } from "store";
 import { SchoolIcon } from "ui";
 import { CourseFormat } from "store";
 import Head from "next/head";
+import Cookies from "js-cookie";
+import axios from "axios";
 
 // ── Inline placeholder SVG ──────────────────────────────────────────────────
 const PLACEHOLDER_SRC =
@@ -57,8 +60,34 @@ function LearningCard({
 }
 
 export default function MyLearningPage() {
-  const { courses } = useRecoilValue(purchasedCoursesState);
+  const [purchasedData, setPurchasedData] = useRecoilState(purchasedCoursesState);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchMyCourses() {
+      const token = Cookies.get("token");
+      if (!token) {
+        router.push("/user/login");
+        return;
+      }
+      try {
+        const res = await axios.get("/api/user/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data?.courses) {
+          setPurchasedData({
+            courses: res.data.courses,
+            isLoading: false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to refresh purchased courses:", err);
+      }
+    }
+    fetchMyCourses();
+  }, [setPurchasedData, router]);
+
+  const courses = purchasedData.courses;
 
   function onClick(courseid: string) {
     router.push(`/user/course/${courseid}`);
