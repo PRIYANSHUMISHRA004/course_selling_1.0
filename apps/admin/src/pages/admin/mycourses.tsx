@@ -90,7 +90,7 @@ export default function MyCoursesPage() {
                 Radhe Radhe — You haven&apos;t created any courses yet.
               </h2>
               <p className="text-sm text-slate-500 mb-6 max-w-md">
-                Create comprehensive lessons, set prices, and publish to students worldwide.
+                Create engaging courses, set prices, and publish to students worldwide.
               </p>
               <button
                 type="button"

@@ -7,23 +7,9 @@ import Head from "next/head";
 import {
   ArrowRightIcon,
   PlayCircleIcon,
-  CodeIcon,
-  BrainIcon,
-  TreeIcon,
-  DatabaseIcon,
-  WebIcon,
   SchoolIcon,
   TrendingUpIcon,
 } from "ui";
-
-// ─── Category Data ────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  { label: "Web Development", icon: <WebIcon className="w-4 h-4" />,      color: "text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100" },
-  { label: "AI",              icon: <BrainIcon className="w-4 h-4" />,    color: "text-purple-600 bg-purple-50 border-purple-200 hover:bg-purple-100" },
-  { label: "DSA",             icon: <TreeIcon className="w-4 h-4" />,     color: "text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100" },
-  { label: "Backend",         icon: <DatabaseIcon className="w-4 h-4" />, color: "text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100" },
-  { label: "Frontend",        icon: <CodeIcon className="w-4 h-4" />,     color: "text-pink-600 bg-pink-50 border-pink-200 hover:bg-pink-100" },
-];
 
 // ─── Inline SVG fallback ──────────────────────────────────────────────────────
 const PLACEHOLDER_SRC =
@@ -194,26 +180,6 @@ export default function UserHome() {
           <div className="absolute right-40 bottom-0 w-60 h-60 rounded-full bg-blue-400/10 blur-2xl pointer-events-none"></div>
         </div>
 
-        {/* ── Categories ─────────────────────────────────────────────────── */}
-        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">
-            Categories
-          </h2>
-
-          <div className="flex flex-wrap gap-2.5">
-            {CATEGORIES.map(({ label, icon, color }) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => router.push("/user/courses")}
-                className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl font-semibold text-xs transition-all hover:-translate-y-0.5 shadow-sm ${color}`}
-              >
-                {icon}
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-        </div> */}
 
         {/* ── Featured Courses ────────────────────────────────────────────── */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">

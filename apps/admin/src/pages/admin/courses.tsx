@@ -75,7 +75,7 @@ export default function CoursesPage() {
                 Let's start your journey with creating a new course
               </h2>
               <p className="text-sm text-slate-500 mb-6 max-w-md">
-                Create comprehensive lessons, set prices, and publish to students worldwide.
+                Create engaging courses, set prices, and publish to students worldwide.
               </p>
               <button
                 type="button"

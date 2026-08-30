@@ -23,12 +23,6 @@ export default function CoursesPage() {
   );
 
   function handleBuy(courseId: string) {
-    const token = Cookies.get("token");
-    if (!token) {
-      // Guest — redirect to login
-      router.push("/user/login");
-      return;
-    }
     router.push(`/user/course/${courseId}`);
   }
 

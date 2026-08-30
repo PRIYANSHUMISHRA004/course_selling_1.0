@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useRecoilValue } from "recoil";
 import { purchasedCoursesState } from "store";
-import { SchoolIcon, PlayCircleOutlineIcon } from "ui";
+import { SchoolIcon } from "ui";
 import { CourseFormat } from "store";
 import Head from "next/head";
 
@@ -9,7 +9,7 @@ import Head from "next/head";
 const PLACEHOLDER_SRC =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='160' viewBox='0 0 280 160'%3E%3Crect width='280' height='160' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%2394a3b8'%3ENo Image%3C/text%3E%3C/svg%3E";
 
-// ── Vertical course card (matching Courses page design) ────────────────────
+// ── Vertical course card ────────────────────────────────────────────────────
 function LearningCard({
   course,
   onClick,
@@ -47,9 +47,9 @@ function LearningCard({
         <button
           type="button"
           onClick={() => onClick(course._id)}
-          className="w-full py-2 px-4 border border-emerald-600 hover:bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-xl transition-colors"
+          className="w-full py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors"
         >
-          Continue Learning
+          Open Course
         </button>
       </div>
     </div>
