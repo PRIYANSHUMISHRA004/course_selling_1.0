@@ -143,7 +143,7 @@ export default function Home() {
     );
   }
 
-  const recentCourses = [...coursesData.courses].reverse().slice(0, 3);
+  const recentCourses = [...coursesData.courses].reverse().slice(0, 4);
 
   return (
     <>
@@ -277,7 +277,7 @@ export default function Home() {
             ) : (
               /* Course Card List */
               <div>
-                <div className="flex flex-wrap justify-start gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   <Coursecard
                     courses={recentCourses}
                     onClick={(courseId) => router.push(`/admin/course/${courseId}`)}

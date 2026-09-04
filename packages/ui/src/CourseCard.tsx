@@ -16,7 +16,7 @@ export function CoursecardAdmin({
       {courses.map((course, i) => (
         <div
           key={course._id ?? i}
-          className="m-2.5 w-[300px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+          className="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
         >
           <img
             src={course.imageLink || PLACEHOLDER_SRC}
@@ -73,7 +73,7 @@ export function Coursecard({
       {courses.map((course, i) => (
         <div
           key={course._id ?? i}
-          className="m-2.5 w-[300px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+          className="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
         >
           <img
             src={course.imageLink || PLACEHOLDER_SRC}

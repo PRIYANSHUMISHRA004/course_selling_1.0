@@ -33,21 +33,18 @@ export default async function handler(
       });
     }
 
-    const { id } = req.query;
+    const { id, mine } = req.query;
 
     if (id) {
       if (!mongoose.Types.ObjectId.isValid(id as string)) {
         return res.status(400).json({ message: "Invalid course ID" });
       }
 
-      const course = await Course.findOne({
-        _id: id,
-        adminId: admin._id,
-      });
+      const course = await Course.findById(id);
 
       if (!course) {
         return res.status(404).json({
-          message: "Course not found or you do not have permission to access it",
+          message: "Course not found",
         });
       }
 
@@ -56,10 +53,17 @@ export default async function handler(
       });
     }
 
-    // List all courses belonging to this admin
-    const courses = await Course.find({
-      adminId: admin._id,
-    });
+    if (mine === "true") {
+      // Find courses created by this admin, or unassigned legacy courses
+      const courses = await Course.find({ adminId: admin._id });
+
+      return res.status(200).json({
+        courses,
+      });
+    }
+
+    // Default: List all platform courses
+    const courses = await Course.find({});
 
     return res.status(200).json({
       courses,
