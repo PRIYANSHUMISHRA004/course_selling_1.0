@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { CourseFormat } from "../types/Courseformat";
+import type{ CourseFormat } from "../types/Courseformat";
 
 export interface PurchasedCoursesState {
   courses: CourseFormat[];

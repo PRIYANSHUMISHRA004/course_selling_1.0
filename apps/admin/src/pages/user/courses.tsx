@@ -61,7 +61,7 @@ export default function CoursesPage() {
 
       <div className="min-h-screen bg-slate-50 py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap  gap-6">
             {courses.map((course, i) => {
               const isPurchased = purchasedCourses.some((c) => c._id === course._id);
 
@@ -69,7 +69,7 @@ export default function CoursesPage() {
                 <div
                   key={course._id ?? i}
                   onClick={() => openCourseDetails(course._id)}
-                  className="w-[280px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col"
+                  className="w-[280px] bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col "
                 >
                   <img
                     src={course.imageLink || PLACEHOLDER_SRC}
@@ -80,14 +80,14 @@ export default function CoursesPage() {
                     }}
                   />
 
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <h3 className="text-base font-bold text-slate-800 line-clamp-2">
+                  <div className="p-4 flex-1 flex flex-col justify-between ">
+                    <h3 className="text-base font-bold text-slate-800 line-clamp-2 flex justify-center">
                       {course.title}
                     </h3>
 
                     {isPurchased && (
                       <div className="mt-3">
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex justify-center">
                           Enrolled
                         </span>
                       </div>
