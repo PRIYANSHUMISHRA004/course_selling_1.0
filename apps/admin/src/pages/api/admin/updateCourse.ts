@@ -2,6 +2,23 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Admin, Course, connectDB } from "db";
 import { verifyToken } from "auth";
 import mongoose from "mongoose";
+import { z } from "zod";
+
+const updateCourseSchema = z.object({
+  courseId: z.string().min(1, "Course ID is required"),
+  title: z
+    .string()
+    .min(1, "Title cannot be empty")
+    .max(200, "Title cannot exceed 200 characters")
+    .optional(),
+  description: z.string().optional(),
+  price: z.coerce
+    .number()
+    .min(0, "Price must be a valid non-negative number")
+    .optional(),
+  imageLink: z.string().optional(),
+  published: z.boolean().optional(),
+});
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,6 +27,28 @@ export default async function handler(
   if (req.method !== "PUT") {
     return res.status(405).json({
       message: "Method not allowed",
+    });
+  }
+
+  const parseResult = updateCourseSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: parseResult.error.issues[0]?.message || "Invalid input data",
+    });
+  }
+
+  const {
+    courseId,
+    title,
+    description,
+    imageLink,
+    price,
+    published,
+  } = parseResult.data;
+
+  if (!mongoose.Types.ObjectId.isValid(courseId)) {
+    return res.status(400).json({
+      message: "Valid course ID is required",
     });
   }
 
@@ -68,6 +107,7 @@ export default async function handler(
         return res.status(400).json({ message: "Price must be a valid non-negative number" });
       }
       updateFields.price = numericPrice;
+      updateFields.price = price;
     }
     if (published !== undefined) {
       updateFields.published = Boolean(published);

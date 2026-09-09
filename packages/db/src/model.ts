@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 
 export const userSchema = new mongoose.Schema({
   name: String,
-  username: String,
+  username: {type: String, unique: true},
   password: String,
   courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
 });
 
 export const adminSchema = new mongoose.Schema({
   name: String,
-  username: String,
+  username: {type: String, unique: true},
   password: String,
 });
 

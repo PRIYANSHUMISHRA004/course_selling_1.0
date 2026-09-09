@@ -1,6 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Admin, Course, connectDB } from "db";
 import { verifyToken } from "auth";
+import { z } from "zod";
+
+const createCourseSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(200, "Title cannot exceed 200 characters"),
+  description: z.string().optional().default(""),
+  price: z.coerce
+    .number()
+    .min(0, "Price must be a valid non-negative number"),
+  imageLink: z.string().optional().default(""),
+  published: z.boolean().optional().default(false),
+});
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,6 +25,15 @@ export default async function handler(
       message: "Method not allowed",
     });
   }
+
+  const parseResult = createCourseSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: parseResult.error.issues[0]?.message || "Invalid course data",
+    });
+  }
+
+  const { title, description, price, imageLink, published } = parseResult.data;
 
   try {
     await connectDB();
@@ -32,21 +55,10 @@ export default async function handler(
       });
     }
 
-    const { title, description, price, imageLink, published } = req.body;
-
-    if (!title || typeof title !== "string" || !title.trim()) {
-      return res.status(400).json({ message: "Title is required" });
-    }
-
-    const numericPrice = typeof price === "number" ? price : Number(price);
-    if (isNaN(numericPrice) || numericPrice < 0) {
-      return res.status(400).json({ message: "Price must be a valid non-negative number" });
-    }
-
     const course = new Course({
       title: title.trim(),
       description: typeof description === "string" ? description.trim() : "",
-      price: numericPrice,
+      price,
       imageLink: typeof imageLink === "string" ? imageLink.trim() : "",
       published: Boolean(published),
       adminId: admin._id,

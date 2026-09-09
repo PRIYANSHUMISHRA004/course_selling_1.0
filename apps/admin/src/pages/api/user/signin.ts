@@ -2,6 +2,18 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { User, connectDB } from "db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
+
+const userSigninSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(100, "Username must be at most 100 characters"),
+  password: z
+    .string()
+    .min(4, "Password must be at least 4 characters")
+    .max(100, "Password cannot exceed 100 characters"),
+});
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,16 +25,21 @@ export default async function handler(
     });
   }
 
+  const parseResult = userSigninSchema.safeParse(req.body);
+
+  if (!parseResult.success) {
+    const firstErrorMessage =
+      parseResult.error.issues[0]?.message || "Invalid input data";
+    return res.status(400).json({
+      message: firstErrorMessage,
+      issues: parseResult.error.issues,
+    });
+  }
+
+  const { username, password } = parseResult.data;
+
   try {
     await connectDB();
-
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({
-        message: "Username and password are required",
-      });
-    }
 
     const user = await User.findOne({
       username: username.trim(),
@@ -34,7 +51,12 @@ export default async function handler(
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    let isMatch = false;
+    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = user.password === password;
+    }
 
     if (!isMatch) {
       return res.status(401).json({
@@ -44,6 +66,7 @@ export default async function handler(
 
     const token = jwt.sign(
       {
+        id: user._id,
         username: user.username,
       },
       process.env.USER_SECRET!,

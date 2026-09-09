@@ -2,10 +2,28 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Admin, connectDB } from "db";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
+
+const adminSignupSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name cannot be empty")
+    .max(100, "Name must be at most 100 characters")
+    .optional()
+    .or(z.literal("")),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(100, "Username must be at most 100 characters"),
+  password: z
+    .string()
+    .min(4, "Password must be at least 4 characters")
+    .max(100, "Password cannot exceed 100 characters"),
+});
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -13,18 +31,17 @@ export default async function handler(
     });
   }
 
+  const parseResult = adminSignupSchema.safeParse(req.body);
+  if (!parseResult.success) {
+    return res.status(400).json({
+      message: parseResult.error.issues[0]?.message || "Invalid input data",
+    });
+  }
+
+  const { name, username, password } = parseResult.data;
+
   try {
     await connectDB();
-
-    const { name, username, password } = req.body;
-
-    if (!username || typeof username !== "string" || !username.trim()) {
-      return res.status(400).json({ message: "Username is required" });
-    }
-
-    if (!password || typeof password !== "string" || password.length < 4) {
-      return res.status(400).json({ message: "Password must be at least 4 characters" });
-    }
 
     const existingAdmin = await Admin.findOne({ username: username.trim() });
 
@@ -49,7 +66,7 @@ export default async function handler(
         username: admin.username,
       },
       process.env.ADMIN_SECRET!,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
     return res.status(201).json({
