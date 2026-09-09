@@ -7,10 +7,12 @@ import { z } from "zod";
 const userSigninSchema = z.object({
   username: z
     .string()
+    .trim()
     .min(3, "Username must be at least 3 characters")
     .max(100, "Username must be at most 100 characters"),
   password: z
     .string()
+    .trim()
     .min(4, "Password must be at least 4 characters")
     .max(100, "Password cannot exceed 100 characters"),
 });
@@ -51,12 +53,7 @@ export default async function handler(
       });
     }
 
-    let isMatch = false;
-    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
-      isMatch = await bcrypt.compare(password, user.password);
-    } else {
-      isMatch = user.password === password;
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(401).json({

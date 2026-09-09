@@ -5,18 +5,19 @@ import mongoose from "mongoose";
 import { z } from "zod";
 
 const updateCourseSchema = z.object({
-  courseId: z.string().min(1, "Course ID is required"),
+  courseId: z.string().trim().min(1, "Course ID is required"),
   title: z
     .string()
+    .trim()
     .min(1, "Title cannot be empty")
     .max(200, "Title cannot exceed 200 characters")
     .optional(),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   price: z.coerce
     .number()
     .min(0, "Price must be a valid non-negative number")
     .optional(),
-  imageLink: z.string().optional(),
+  imageLink: z.string().trim().optional(),
   published: z.boolean().optional(),
 });
 
@@ -72,45 +73,22 @@ export default async function handler(
       });
     }
 
-    const {
-      courseId,
-      title,
-      description,
-      imageLink,
-      price,
-      published,
-    } = req.body;
-
-    if (!courseId || !mongoose.Types.ObjectId.isValid(courseId)) {
-      return res.status(400).json({
-        message: "Valid course ID is required",
-      });
-    }
-
     const updateFields: Record<string, any> = {};
 
     if (title !== undefined) {
-      if (typeof title !== "string" || !title.trim()) {
-        return res.status(400).json({ message: "Title cannot be empty" });
-      }
-      updateFields.title = title.trim();
+      updateFields.title = title;
     }
     if (description !== undefined) {
-      updateFields.description = typeof description === "string" ? description.trim() : "";
+      updateFields.description = description;
     }
     if (imageLink !== undefined) {
-      updateFields.imageLink = typeof imageLink === "string" ? imageLink.trim() : "";
+      updateFields.imageLink = imageLink;
     }
     if (price !== undefined) {
-      const numericPrice = typeof price === "number" ? price : Number(price);
-      if (isNaN(numericPrice) || numericPrice < 0) {
-        return res.status(400).json({ message: "Price must be a valid non-negative number" });
-      }
-      updateFields.price = numericPrice;
       updateFields.price = price;
     }
     if (published !== undefined) {
-      updateFields.published = Boolean(published);
+      updateFields.published = published;
     }
 
     const course = await Course.findOneAndUpdate(

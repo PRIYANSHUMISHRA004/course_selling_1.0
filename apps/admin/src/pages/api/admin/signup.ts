@@ -7,16 +7,20 @@ import { z } from "zod";
 const adminSignupSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(1, "Name cannot be empty")
     .max(100, "Name must be at most 100 characters")
-    .optional()
-    .or(z.literal("")),
+    ,
+    .min(1, "Name is required")
+    .max(100, "Name must be at most 100 characters"),
   username: z
     .string()
+    .trim()
     .min(3, "Username must be at least 3 characters")
     .max(100, "Username must be at most 100 characters"),
   password: z
     .string()
+    .trim()
     .min(4, "Password must be at least 4 characters")
     .max(100, "Password cannot exceed 100 characters"),
 });
@@ -55,6 +59,7 @@ export default async function handler(
 
     const admin = new Admin({
       name: name?.trim() || username.trim(),
+      name: name.trim(),
       username: username.trim(),
       password: hashedPassword,
     });

@@ -6,13 +6,14 @@ import { z } from "zod";
 const createCourseSchema = z.object({
   title: z
     .string()
+    .trim()
     .min(1, "Title is required")
     .max(200, "Title cannot exceed 200 characters"),
-  description: z.string().optional().default(""),
+  description: z.string().trim().optional().default(""),
   price: z.coerce
     .number()
     .min(0, "Price must be a valid non-negative number"),
-  imageLink: z.string().optional().default(""),
+  imageLink: z.string().trim().optional().default(""),
   published: z.boolean().optional().default(false),
 });
 

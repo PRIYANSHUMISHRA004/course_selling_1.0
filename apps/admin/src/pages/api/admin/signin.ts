@@ -7,10 +7,12 @@ import { z } from "zod";
 const adminSigninSchema = z.object({
   username: z
     .string()
+    .trim()
     .min(3, "Username must be at least 3 characters")
     .max(100, "Username must be at most 100 characters"),
   password: z
     .string()
+    .trim()
     .min(4, "Password must be at least 4 characters")
     .max(100, "Password cannot exceed 100 characters"),
 });
@@ -36,14 +38,6 @@ export default async function handler(
 
   try {
     await connectDB();
-
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({
-        message: "Username and password are required",
-      });
-    }
 
     const admin = await Admin.findOne({
       username: username.trim(),
