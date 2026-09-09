@@ -12,7 +12,6 @@ const adminSigninSchema = z.object({
     .max(100, "Username must be at most 100 characters"),
   password: z
     .string()
-    .trim()
     .min(4, "Password must be at least 4 characters")
     .max(100, "Password cannot exceed 100 characters"),
 });
